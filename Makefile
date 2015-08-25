@@ -5,8 +5,8 @@ DEPS := .depend
 OUT := redsocks
 VERSION := 0.4
 
-LIBS := -levent
-CFLAGS += -g -O2
+LIBS := -L./libevent/libevent-2.0.22-stable/.libs -levent
+CFLAGS += -g -O2 -I./libevent/libevent-2.0.22-stable
 override CFLAGS += -std=gnu99 -Wall
 
 all: $(OUT)
@@ -16,7 +16,7 @@ all: $(OUT)
 tags: *.c *.h
 	ctags -R
 
-$(CONF):
+$(CONF): 
 	@case `uname` in \
 	Linux*) \
 		echo "#define USE_IPTABLES" >$(CONF) \
@@ -47,7 +47,9 @@ gen/version.c: *.c *.h gen/.build
 	echo ';' >> $@.tmp
 	mv -f $@.tmp $@
 
-gen/.build:
+gen/.build: 
+	cd ./libevent && tar -zxvf libevent-2.0.22-stable.tar.gz
+	cd ./libevent/libevent-2.0.22-stable && ./configure && make
 	mkdir -p gen
 	touch $@
 
@@ -83,7 +85,9 @@ $(OUT): $(OBJS)
 
 clean:
 	$(RM) $(OUT) $(CONF) $(OBJS)
+	$(RM) -r ./libevent/libevent-2.0.22-stable
 
 distclean: clean
 	$(RM) tags $(DEPS)
 	$(RM) -r gen
+	$(RM) -r ./libevent/libevent-2.0.22-stable
